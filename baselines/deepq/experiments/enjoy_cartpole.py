@@ -1,4 +1,5 @@
 import gym
+import time
 
 from baselines import deepq
 
@@ -11,8 +12,9 @@ def main():
         obs, done = env.reset(), False
         episode_rew = 0
         while not done:
-            env.render()
             obs, rew, done, _ = env.step(act(obs[None])[0])
+            print(obs)
+            time.sleep(0.5)
             episode_rew += rew
         print("Episode reward", episode_rew)
 
