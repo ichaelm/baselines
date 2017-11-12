@@ -182,7 +182,8 @@ if __name__ == '__main__':
         obs = env.reset()
         num_iters_since_reset = 0
         reset = True
-
+        rewards_list = []
+        
         # Main trianing loop
         while True:
             num_iters += 1
@@ -211,6 +212,17 @@ if __name__ == '__main__':
             action = act(np.array(obs)[None], update_eps=update_eps, **kwargs)[0]
             reset = False
             new_obs, rew, done, info = env.step(action)
+            #print('new_obs')
+            #print(new_obs)
+            #print('rew')
+            #print(rew)
+            #print('done')
+            #print(done)
+            #print('info')
+            #print(info)
+            if 'steps' not in info:
+                info['steps'] = num_iters
+            rewards_list.append(rew)
             replay_buffer.add(obs, action, rew, new_obs, float(done))
             obs = new_obs
             if done:
@@ -260,8 +272,8 @@ if __name__ == '__main__':
                 logger.record_tabular("% completion", completion)
                 logger.record_tabular("steps", info["steps"])
                 logger.record_tabular("iters", num_iters)
-                logger.record_tabular("episodes", len(info["rewards"]))
-                logger.record_tabular("reward (100 epi mean)", np.mean(info["rewards"][-100:]))
+                logger.record_tabular("episodes", len(rewards_list))
+                logger.record_tabular("reward (100 epi mean)", np.mean(rewards_list[-100:]))
                 logger.record_tabular("exploration", exploration.value(num_iters))
                 if args.prioritized:
                     logger.record_tabular("max priority", replay_buffer._max_priority)
